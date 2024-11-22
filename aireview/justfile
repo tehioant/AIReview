@@ -1,0 +1,15 @@
+#!/usr/bin/env just --justfile
+
+set dotenv-load
+
+# 🪮✨ Make sure code formatting is OK before committing (format then lint)
+pre-commit:
+    format lint
+
+# ⬇️ to download all python dependencies
+install-dependencies:
+    poetry lock --no-update
+    poetry install --no-root
+
+run:
+    poetry run python src/aireview/main.py

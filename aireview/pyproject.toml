@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "aireview"
+version = "0.1.0"
+description = ""
+authors = ["tehio antoine <antoine.tehio@wakam.com>"]
+readme = "README.md"
+packages = [{ include = "aireview", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.3"
+pytz = "^2024.2"
+msrest = "^0.7.1"
+azure-devops = "^7.1.0b4"
+poetry-plugin-dotenv = "^2.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
