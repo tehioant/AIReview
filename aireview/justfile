@@ -13,3 +13,6 @@ install-dependencies:
 
 run:
     poetry run python src/aireview/main.py
+
+tests:
+    poetry run pytest

@@ -1,5 +1,6 @@
 import os
 
+from aireview.application.controllers.review_controller import ReviewController
 from aireview.config import Config
 from aireview.domain.assistant import Assistant
 from aireview.domain.services.code_analyzer import CodeAnalyzer
@@ -20,7 +21,7 @@ from aireview.models.llms.llm_model import LlmModel
 #     # response = dust_assistant.create_conversation("Hello, tell me about yourself")
 #     # print(dust_assistant.get_message(response))
 
-def main():
+async def main():
     config = Config()
     dust_client = DustClient(config.dust_api_key)
     github_client = GitHubClient(config.github_token)
