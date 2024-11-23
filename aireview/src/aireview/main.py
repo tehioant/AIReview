@@ -10,6 +10,7 @@ from aireview.infrastructure.github_client import GitHubClient
 
 def main():
     config = Config()
+    # TODO: create dust agent for reviews
     dust_client = DustClient(config.dust_api_key)
     github_client = GitHubClient(config.github_token, "tehioant", "AIReview")
 
