@@ -2,12 +2,9 @@ import os
 
 from aireview.application.controllers.review_controller import ReviewController
 from aireview.config import Config
-from aireview.domain.assistant import Assistant
 from aireview.domain.services.code_analyzer import CodeAnalyzer
 from aireview.infrastructure.dust_client import DustClient
 from aireview.infrastructure.github_client import GitHubClient
-from aireview.interfaces.github import GithubClient
-from aireview.models.llms.llm_model import LlmModel
 
 
 # def main():
@@ -25,11 +22,12 @@ async def main():
     config = Config()
     dust_client = DustClient(config.dust_api_key)
     github_client = GitHubClient(config.github_token)
+    github_client.get_pull_request("tehioant", "AIReview", )
 
-    analyzer = CodeAnalyzer(dust_client)
-    controller = ReviewController(analyzer, github_client)
+    # analyzer = CodeAnalyzer(dust_client)
+    # controller = ReviewController(analyzer, github_client)
 
-    await controller.review_pull_request(pr_id=123)
+    # await controller.review_pull_request(pr_id=123)
 
 if __name__ == "__main__":
     main()

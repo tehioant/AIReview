@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from aireview.interfaces.client import Client
-from aireview.models.llms.llm_model import LlmModel
+from aireview.domain.entities.llm_model import LlmModel
 import pytz
 
 
