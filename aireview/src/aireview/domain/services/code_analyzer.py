@@ -1,5 +1,6 @@
 from aireview.domain.entities.pull_request import PullRequest
 from aireview.domain.entities.review import Review
+from aireview.domain.entities.review_comment import ReviewComment
 
 
 class CodeAnalyzer:
@@ -22,4 +23,4 @@ class CodeAnalyzer:
         pass
 
     def _parse_analysis(self, analysis):
-        return Review
+        return Review(1, [ReviewComment("aireview/src/aireview/infrastructure/github_client.py", 34, "get_pull_request", "naming")], "summary of review", "COMMENT")
