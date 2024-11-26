@@ -1,10 +1,12 @@
-from aireview.domain.entities.llm_model import LlmModel
+from abc import ABC, abstractclassmethod, abstractmethod
 
-
-class LLMClient:
+class LLMClient(ABC):
 
     url: str
-    model: LlmModel
 
-    def __init__(self):
+    def __init__(self, url: str):
+        self.url = url
+
+    @abstractmethod
+    async def analyse(self, prompt: str):
         pass

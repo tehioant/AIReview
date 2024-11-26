@@ -10,6 +10,7 @@ from requests import Response
 from typer.cli import state
 
 from aireview.domain.entities.pull_request import PullRequest
+from aireview.domain.entities.pull_request_file import PullRequestFile
 from aireview.domain.entities.review import Review
 
 logger = logging.getLogger(__name__)
@@ -35,17 +36,17 @@ class GitHubClient:
         files_data = self._session.get(f"{self._base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/files")
         files_data.raise_for_status()
         json_pr_data = pr_data.json()
+
         return PullRequest(
             id=json_pr_data["id"],
             number=json_pr_data["number"],
             title=json_pr_data["title"],
             description=json_pr_data["body"] or "",
-            files=[f["filename"] for f in files_data.json()],
-            diff="".join(f["patch"] for f in files_data.json() if "patch" in f),
+            files=[PullRequestFile.from_json(f) for f in files_data.json()],
             base_branch=json_pr_data["base"]["ref"],
             head_branch=json_pr_data["head"]["ref"],
             state= json_pr_data["state"],
-            draft= json_pr_data["draft"],
+            draft= json_pr_data["draft"]
         )
 
     async def submit_review(
