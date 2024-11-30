@@ -1,25 +1,34 @@
 from aireview.domain.entities.pull_request import PullRequest
+from aireview.domain.entities.pull_request_file import PullRequestFile
 from aireview.domain.entities.review import Review
+from aireview.domain.entities.review_comment import ReviewComment
+from aireview.infrastructure.llm_client import LLMClient
 
 
 class CodeAnalyzer:
-    def __init__(self, dust_client, call_limit: int = 10):
-        self._dust_client = dust_client
+    def __init__(self, ai_agent: LLMClient, call_limit: int = 10):
+        self._ai_agent = ai_agent
         self._call_count = 0
         self._call_limit = call_limit
 
-    async def analyze_code(self, pull_request: PullRequest) -> Review:
-        if self._call_count >= self._call_limit:
-            raise Exception("Dust API call limit reached")
+    def analyze_code(self, pull_request: PullRequest) -> Review:
+        review_comments: [ReviewComment] = []
+        # self._ai_agent.initialize(f"Creating context for review of pull request {pull_request.number}")
+        for index, file in enumerate(pull_request.files):
+            prompt = self._build_analysis_prompt(file)
+            analysis = self._ai_agent.analyse(prompt)
+            review_comments.append(self._parse_analysis(analysis))
+        return Review(1, review_comments,"summary of review", "COMMENT")
 
-        prompt = self._build_analysis_prompt(pull_request)
-        analysis = await self._dust_client.analyze(prompt)
-        self._call_count += 1
+    def _build_analysis_prompt(self, file: PullRequestFile):
+        return (f"<prompt>\n "
+                f"status: {file.status}\n "
+                f"file_path: {file.filename}\n "
+                f"changes: {file.patch if file.patch else file.previous_filename}\n"
+                f"</prompt>"
+                )
 
-        return self._parse_analysis(analysis)
-
-    def _build_analysis_prompt(self, pull_request):
-        pass
 
     def _parse_analysis(self, analysis):
-        return Review
+        print(f"analysis: {analysis}")
+        return ReviewComment("aireview/src/aireview/infrastructure/github_client.py", 34, "get_pull_request", "naming")

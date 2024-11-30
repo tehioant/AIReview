@@ -1,35 +1,23 @@
-import os
+import asyncio
 
 from aireview.application.controllers.review_controller import ReviewController
 from aireview.config import Config
-from aireview.domain.assistant import Assistant
 from aireview.domain.services.code_analyzer import CodeAnalyzer
 from aireview.infrastructure.dust_client import DustClient
 from aireview.infrastructure.github_client import GitHubClient
-from aireview.interfaces.github import GithubClient
-from aireview.models.llms.llm_model import LlmModel
 
 
-# def main():
-#     print("Hello World")
-#
-#     claude = LlmModel(os.getenv("claude_id"), os.getenv("dust_api_key"), "https://dust.tt/api/v1/w/SB0HhCoUEW/assistant/conversations")
-#     dust_assistant = Assistant("claude_agent", claude)
-#
-#     azdevops = GithubClient()
-#     print(azdevops.get_repositories())
-#     # response = dust_assistant.create_conversation("Hello, tell me about yourself")
-#     # print(dust_assistant.get_message(response))
 
-async def main():
+def main():
     config = Config()
-    dust_client = DustClient(config.dust_api_key)
-    github_client = GitHubClient(config.github_token)
+    # TODO: create dust agent for reviews
+    dust_client = DustClient(config.dust_api_key, config.claude_id, config.workspace_id)
+    github_client = GitHubClient(config.github_token, "tehioant", "AIReview")
 
     analyzer = CodeAnalyzer(dust_client)
     controller = ReviewController(analyzer, github_client)
 
-    await controller.review_pull_request(pr_id=123)
+    asyncio.run(controller.review_pull_request(pr_id=1))
 
 if __name__ == "__main__":
     main()
