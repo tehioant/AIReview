@@ -15,5 +15,5 @@ class ReviewController:
 
     async def review_pull_request(self, pr_id: int) -> None:
         pull_request = await self._github.get_pull_request(pr_id)
-        review = await self._analyzer.analyze_code(pull_request)
+        review = self._analyzer.analyze_code(pull_request)
         # await self._github.submit_review(pr_id, review)

@@ -10,3 +10,7 @@ class LLMClient(ABC):
     @abstractmethod
     async def analyse(self, prompt: str):
         pass
+
+    @abstractmethod
+    def initialize(self, init_prompt: str):
+        pass

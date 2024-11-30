@@ -11,7 +11,7 @@ from aireview.infrastructure.github_client import GitHubClient
 def main():
     config = Config()
     # TODO: create dust agent for reviews
-    dust_client = DustClient(config.dust_api_key, config.claude_id)
+    dust_client = DustClient(config.dust_api_key, config.claude_id, config.workspace_id)
     github_client = GitHubClient(config.github_token, "tehioant", "AIReview")
 
     analyzer = CodeAnalyzer(dust_client)
