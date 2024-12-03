@@ -1,7 +1,5 @@
 #!/usr/bin/env just --justfile
 
-set dotenv-load
-
 # 🪮✨ Make sure code formatting is OK before committing (format then lint)
 pre-commit:
     format lint
@@ -16,3 +14,46 @@ run:
 
 tests:
     poetry run pytest
+
+prefect-login:
+    poetry run python prefect/deploy/login.py
+
+# See the help message by: just manage-block --help
+manage-block +args:
+    poetry run python prefect/deploy/manage_block.py {{ args }}
+
+# See the help message by: just manage-flow --help
+manage-flow +args: prefect-login
+    poetry run python prefect/deploy/manage_flow.py {{ args }}
+
+manage-flow-local +args: prefect-login
+    poetry run python prefect/deploy/manage_flow.py {{ args }}
+
+[private]
+login-acr:
+    az acr login --name crdataprd
+
+docker-build version:
+    #!/usr/bin/env sh
+    # Enable BuildKit for better caching:
+    export DOCKER_BUILDKIT=1
+    docker build . \
+        -f $_prefect_dir/Dockerfile.prefect.base \
+        --build-arg PREFECT_VERSION={{version}} \
+        -t crdataprd.azurecr.io/prefect-base:{{version}}
+
+docker-build-local version:
+    #!/usr/bin/env sh
+    # Enable BuildKit for better caching:
+    export DOCKER_BUILDKIT=1
+    docker build . \
+        --platform=linux/amd64 \
+        -f $_prefect_dir/Dockerfile.prefect.base \
+        --build-arg PREFECT_VERSION={{version}} \
+        -t crdataprd.azurecr.io/prefect-base:{{version}}
+
+docker-push version: login-acr
+    #!/usr/bin/env sh
+    export DOCKER_BUILDKIT=1
+
+    docker push crdataprd.azurecr.io/prefect-base:{{version}}

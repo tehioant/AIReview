@@ -12,8 +12,8 @@ class ReviewComment:
     @staticmethod
     def from_json(data: Any) -> 'ReviewComment':
         return ReviewComment(
-            file_path=data.get("file_path", ""),
-            line=data.get("line", 0),
-            content=data.get("content", ""),
-            type=data.get("type", "")
+            file_path=data["file_path"],
+            line=data["line"],
+            content=data["content"],
+            type=data["type"]
         )

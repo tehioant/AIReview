@@ -9,11 +9,16 @@ packages = [{ include = "aireview", from = "src" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.32.3"
-pytz = "^2024.2"
 msrest = "^0.7.1"
 azure-devops = "^7.1.0b4"
 poetry-plugin-dotenv = "^2.4.0"
+prefect = "^3.1.5"
 
+[tool.poetry.group.prefect.dependencies]
+prefect = "^3.1.5"
+requests = "^2.32.3"
+msrest = "^0.7.1"
+azure-devops = "^7.1.0b4"
 
 [build-system]
 requires = ["poetry-core"]
