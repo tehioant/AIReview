@@ -59,7 +59,7 @@ class GitHubClient:
             for comment in review.comments:
                 review_data = {
                     "body": f"**{comment.type}**: {comment.content}",
-                    "commit_id": '0bc1452063f61711e9bda6b4a1f49410bc621c7b',
+                    "commit_id": '',
                     "path": comment.file_path,
                     "start_line": comment.line,
                     "start_side": 'RIGHT',

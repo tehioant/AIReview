@@ -16,7 +16,9 @@ class CodeAnalyzer:
         # self._ai_agent.initialize(f"Creating context for review of pull request {pull_request.number}")
         for index, file in enumerate(pull_request.files):
             prompt = self._build_analysis_prompt(file)
+            print(f"prompt: {prompt}")
             analysis = self._ai_agent.analyse(prompt)
+            print(f"analysis: {analysis}")
             review_comments.append(self._parse_analysis(analysis))
         return Review(1, review_comments,"summary of review", "COMMENT")
 
@@ -30,5 +32,4 @@ class CodeAnalyzer:
 
 
     def _parse_analysis(self, analysis):
-        print(f"analysis: {analysis}")
-        return ReviewComment("aireview/src/aireview/infrastructure/github_client.py", 34, "get_pull_request", "naming")
+        return ReviewComment.from_json(analysis)
