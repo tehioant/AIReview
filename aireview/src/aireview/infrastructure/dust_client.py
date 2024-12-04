@@ -1,9 +1,6 @@
 from abc import ABC
 
 import requests
-from aiohttp import payload_type
-from sqlalchemy.util import await_only
-
 from aireview.infrastructure.llm_client import LLMClient
 
 
@@ -45,7 +42,6 @@ class DustClient(LLMClient, ABC):
             "blocking": True
         }
         response = requests.post(self.url + "/assistant/conversations", headers=self.get_headers(), json=payload)
-        print(response.json())
         response.raise_for_status()
         return self.get_content(response.json())
 
@@ -58,7 +54,6 @@ class DustClient(LLMClient, ABC):
                     "mentions": ""
                 }
         response = requests.post(self.url + f"/assistant/conversations/{self._conversation_id}/messages", headers=self.get_headers(), json=payload)
-        print(response.json())
         response.raise_for_status()
         return self.get_content(response.json())
 

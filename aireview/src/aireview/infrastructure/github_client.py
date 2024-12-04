@@ -6,12 +6,14 @@ from typing import Dict, Any
 import logging
 
 from litellm.llms.custom_httpx.http_handler import headers
+from nltk.chunk.named_entity import shape
 from requests import Response
 from typer.cli import state
 
 from aireview.domain.entities.pull_request import PullRequest
 from aireview.domain.entities.pull_request_file import PullRequestFile
 from aireview.domain.entities.review import Review
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -56,27 +58,33 @@ class GitHubClient:
     ) -> None:
         response: Response
         try:
+            logger.info(f"Submit review to pull request #{pr_number}")
             for comment in review.comments:
-                review_data = {
-                    "body": f"**{comment.type}**: {comment.content}",
-                    "commit_id": '',
-                    "path": comment.file_path,
-                    "start_line": comment.line,
-                    "start_side": 'RIGHT',
-                    "line": comment.line+1,
-                    "side": 'RIGHT'
-                }
+                logger.info(f"comment: {comment}")
+                content = self.get_file_content(comment.file_path, str(pr_number))
+                if content is not None:
+                    if self.len_content_lines(content) <= int(comment.line):
+                        comment.line = self.len_content_lines(content) - 1
+                    review_data = {
+                        "body": f"**{comment.type}**: {comment.content}",
+                        "commit_id": f"951b12a93e1ade83bce9d18c4d240bfa2f9d3067",
+                        "path": comment.file_path,
+                        "start_line": comment.line,
+                        "start_side": 'RIGHT',
+                        "line": int(comment.line) + 1,
+                        "side": 'RIGHT'
+                    }
 
-                response = self._session.post(f"{self._base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/comments",headers=self._headers, json=review_data)
-                response.raise_for_status()
+                    response = self._session.post(f"{self._base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/comments",headers=self._headers, json=review_data)
+                    response.raise_for_status()
 
             logger.info(f"Successfully submitted review for PR #{pr_number}")
-            print(f"Successfully submitted review for PR #{pr_number} :: response {response.json()}")
+            logger.info(f"Successfully submitted review for PR #{pr_number} :: response {response.json()}")
         except Exception as e:
             logger.error(f"Failed to submit review for PR #{pr_number}: {str(e)}")
             raise
 
-    async def get_file_content(
+    def get_file_content(
             self,
             path: str,
             ref: str
@@ -87,12 +95,11 @@ class GitHubClient:
                 data={"ref": ref}
             )
             response.raise_for_status()
-            return base64.b64decode(response.json()["content"]).decode("utf-8")
+            return response.json()
         except Exception as e:
             logger.error(f"Failed to fetch file content for {path}: {str(e)}")
-            raise
 
-    async def get_diff_stats(
+    def get_diff_stats(
             self,
             pr_number: int
     ) -> Dict[str, Any]:
@@ -104,3 +111,11 @@ class GitHubClient:
             "deletions": sum(f["deletions"] for f in files_data),
             "changed_files": len(files_data.json())
         }
+
+    def len_content_lines(self, file_content):
+        content = file_content.get("content", "")
+        if not content:
+            return 0
+
+        decoded_content = base64.b64decode(content).decode('utf-8')
+        return len(decoded_content.splitlines())
