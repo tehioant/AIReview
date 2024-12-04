@@ -38,9 +38,8 @@ docker-build version:
     # Enable BuildKit for better caching:
     export DOCKER_BUILDKIT=1
     docker build . \
-        -f $_prefect_dir/Dockerfile.prefect.base \
         --build-arg PREFECT_VERSION={{version}} \
-        -t crdataprd.azurecr.io/prefect-base:{{version}}
+        -t crdataprd.azurecr.io/review-pull-request:{{version}}
 
 docker-build-local version:
     #!/usr/bin/env sh
@@ -48,12 +47,11 @@ docker-build-local version:
     export DOCKER_BUILDKIT=1
     docker build . \
         --platform=linux/amd64 \
-        -f $_prefect_dir/Dockerfile.prefect.base \
         --build-arg PREFECT_VERSION={{version}} \
-        -t crdataprd.azurecr.io/prefect-base:{{version}}
+        -t crdataprd.azurecr.io/review-pull-request:{{version}}
 
 docker-push version: login-acr
     #!/usr/bin/env sh
     export DOCKER_BUILDKIT=1
 
-    docker push crdataprd.azurecr.io/prefect-base:{{version}}
+    docker push crdataprd.azurecr.io/review-pull-request:{{version}}

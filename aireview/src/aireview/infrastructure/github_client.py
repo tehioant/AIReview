@@ -6,6 +6,7 @@ from typing import Dict, Any
 import logging
 
 from litellm.llms.custom_httpx.http_handler import headers
+from nltk.chunk.named_entity import shape
 from requests import Response
 from typer.cli import state
 
@@ -61,20 +62,21 @@ class GitHubClient:
             for comment in review.comments:
                 logger.info(f"comment: {comment}")
                 content = self.get_file_content(comment.file_path, str(pr_number))
-                if self.len_content_lines(content) <= int(comment.line):
-                    comment.line = self.len_content_lines(content) - 1
-                review_data = {
-                    "body": f"**{comment.type}**: {comment.content}",
-                    "commit_id": 'f46b816064d17fdd0557f53a626ce48cdafe65b0',
-                    "path": comment.file_path,
-                    "start_line": comment.line,
-                    "start_side": 'RIGHT',
-                    "line": int(comment.line) + 1,
-                    "side": 'RIGHT'
-                }
+                if content is not None:
+                    if self.len_content_lines(content) <= int(comment.line):
+                        comment.line = self.len_content_lines(content) - 1
+                    review_data = {
+                        "body": f"**{comment.type}**: {comment.content}",
+                        "commit_id": f"951b12a93e1ade83bce9d18c4d240bfa2f9d3067",
+                        "path": comment.file_path,
+                        "start_line": comment.line,
+                        "start_side": 'RIGHT',
+                        "line": int(comment.line) + 1,
+                        "side": 'RIGHT'
+                    }
 
-                response = self._session.post(f"{self._base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/comments",headers=self._headers, json=review_data)
-                response.raise_for_status()
+                    response = self._session.post(f"{self._base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}/comments",headers=self._headers, json=review_data)
+                    response.raise_for_status()
 
             logger.info(f"Successfully submitted review for PR #{pr_number}")
             logger.info(f"Successfully submitted review for PR #{pr_number} :: response {response.json()}")

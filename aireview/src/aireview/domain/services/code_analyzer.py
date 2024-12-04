@@ -20,10 +20,11 @@ class CodeAnalyzer:
             analysis = self._ai_agent.analyse(prompt)
             comments = self._parse_analysis(analysis)
             review_comments.extend(comments)
-        return Review(1, review_comments,"summary of review", "COMMENT")
+        return Review(pull_request.number, review_comments,"summary of review", "COMMENT")
 
     def _build_analysis_prompt(self, file: PullRequestFile):
         return (f"<prompt>\n "
+                f"sha: {file.sha}\n"
                 f"status: {file.status}\n "
                 f"file_path: {file.filename}\n "
                 f"changes: {file.patch if file.patch else file.previous_filename}\n"
