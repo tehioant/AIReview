@@ -3,6 +3,7 @@ from aireview.domain.entities.pull_request_file import PullRequestFile
 from aireview.domain.entities.review import Review
 from aireview.domain.entities.review_comment import ReviewComment
 from aireview.infrastructure.llm_client import LLMClient
+from aireview.utils.extract_json import extract_json
 
 
 class CodeAnalyzer:
@@ -16,14 +17,14 @@ class CodeAnalyzer:
         # self._ai_agent.initialize(f"Creating context for review of pull request {pull_request.number}")
         for index, file in enumerate(pull_request.files):
             prompt = self._build_analysis_prompt(file)
-            print(f"prompt: {prompt}")
             analysis = self._ai_agent.analyse(prompt)
-            print(f"analysis: {analysis}")
-            review_comments.append(self._parse_analysis(analysis))
-        return Review(1, review_comments,"summary of review", "COMMENT")
+            comments = self._parse_analysis(analysis)
+            review_comments.extend(comments)
+        return Review(pull_request.number, review_comments,"summary of review", "COMMENT")
 
     def _build_analysis_prompt(self, file: PullRequestFile):
         return (f"<prompt>\n "
+                f"sha: {file.sha}\n"
                 f"status: {file.status}\n "
                 f"file_path: {file.filename}\n "
                 f"changes: {file.patch if file.patch else file.previous_filename}\n"
@@ -32,4 +33,8 @@ class CodeAnalyzer:
 
 
     def _parse_analysis(self, analysis):
-        return ReviewComment.from_json(analysis)
+        review_comments: [ReviewComment] = []
+        analysis_comments = extract_json(analysis)
+        for comment in analysis_comments:
+            review_comments.append(ReviewComment.from_json(comment))
+        return review_comments
